@@ -23,14 +23,36 @@ public class PlayerMovement : MonoBehaviour
     private float sprintSpeed;
     private Vector3 moveDirection;
 
-    private void Start()
+    private bool _inputEnabled = true;
+
+    private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
+    }
+
+    private void OnEnable()
+    {
+        PlayerInteract.OnPlayerInteract += PlayerInteract_OnPlayerInteract;
+    }
+
+    private void OnDisable()
+    {
+        PlayerInteract.OnPlayerInteract -= PlayerInteract_OnPlayerInteract;
+    }
+
+    private void Start()
+    {
         _rb.freezeRotation = true;
+        _inputEnabled = true;
     }
 
     private void Update()
     {
+        if (!_inputEnabled)
+        {
+            return;
+        }
+
         // ground check
         _isGrounded = Physics.CheckSphere(_groundCheck.position, _groundCheckDistance, _whatIsGround);
 
@@ -47,6 +69,12 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
+    }
+
+    private void PlayerInteract_OnPlayerInteract(PlayerInteract playerInteract)
+    {
+        print("Movement Disabled");
+        _inputEnabled = false;
     }
 
     private void MyInput()

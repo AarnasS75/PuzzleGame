@@ -10,7 +10,6 @@ public class InputManager : MonoBehaviour
 
     public static event Action<Vector2> OnMovementPerformed;
     public static event Action<Vector2> OnLookPerformed;
-    public static event Action<float> OnScrollWheelPerformed;
     public static event Action OnEscapePerformed;
 
     public static event Action<PuzzleObject> OnPuzzleObjectSelected;
@@ -27,7 +26,6 @@ public class InputManager : MonoBehaviour
         _input.Gameplay.Movement.performed += Movement_performed;
         _input.Gameplay.Look.performed += Look_performed;
         _input.Gameplay.Interact.started += Interact_performed;
-        _input.Gameplay.ScrollWheel.performed += ScrollWheel_performed;
         _input.Gameplay.Escape.started += Escape_started;
     }
 
@@ -38,7 +36,6 @@ public class InputManager : MonoBehaviour
         _input.Gameplay.Movement.performed -= Movement_performed;
         _input.Gameplay.Look.performed -= Look_performed;
         _input.Gameplay.Interact.started -= Interact_performed;
-        _input.Gameplay.ScrollWheel.performed -= ScrollWheel_performed;
         _input.Gameplay.Escape.started -= Escape_started;
     }
 
@@ -94,17 +91,6 @@ public class InputManager : MonoBehaviour
         }
 
         OnEscapePerformed?.Invoke();
-    }
-
-    private void ScrollWheel_performed(InputAction.CallbackContext ctx)
-    {
-        if (MovementEnabled)
-        {
-            return;
-        }
-
-        var input = ctx.ReadValue<Vector2>().y;
-        OnScrollWheelPerformed?.Invoke(input);
     }
 
     private bool TryInteractWithPuzzleObject()

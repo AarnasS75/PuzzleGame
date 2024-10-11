@@ -4,30 +4,44 @@ public class PlayerCam : MonoBehaviour
 {
     [SerializeField] private float _sensX;
     [SerializeField] private float _sensY;
+    [SerializeField] private Transform _playerCamera;
 
-    [SerializeField] private Transform _orientation;
+    private const float CLAMP = 90;
+    private float xRotation = 0f;
 
-    private float _xRotation;
-    private float _yRotation;
+    private float mouseX, mouseY;
 
-    private void Start()
+    private void OnEnable()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        InputManager.OnLookPerformed += InputManager_OnLookPerformed;
+    }
+
+    private void OnDisable()
+    {
+        InputManager.OnLookPerformed -= InputManager_OnLookPerformed;
     }
 
     private void Update()
     {
-        var mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * _sensX;
-        var mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * _sensY;
+        if (!InputManager.MovementEnabled)
+        {
+            mouseX = 0f;
+            mouseY = 0f;
+            return;
+        }
 
-        _yRotation += mouseX;
-        _xRotation -= mouseY;
+        transform.Rotate(Vector3.up, mouseX * Time.deltaTime);
 
-        _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
-
-        transform.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
-        _orientation.rotation = Quaternion.Euler(0, _yRotation, 0);
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -CLAMP, CLAMP);
+        var targetRotation = transform.eulerAngles;
+        targetRotation.x = xRotation;
+        _playerCamera.eulerAngles = targetRotation;
     }
 
+    private void InputManager_OnLookPerformed(Vector2 mouseInput)
+    {
+        mouseX = mouseInput.x * _sensX;
+        mouseY = mouseInput.y * _sensY;
+    }
 }

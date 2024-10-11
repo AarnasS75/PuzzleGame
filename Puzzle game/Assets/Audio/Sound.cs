@@ -15,11 +15,3 @@ public class Sound
     [HideInInspector]
     public AudioSource Source;
 }
-
-public enum SoundTitle
-{
-    MachineryHumming,
-    AirVents,
-    Footsteps,
-    ElectricalBuzz
-}

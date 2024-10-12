@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class LockPuzzleView : PuzzleView
 {
     [Header("Dial Configuration")]
+    [SerializeField] private int[] _numberSequence;
     [SerializeField] private Image _lockDial;
 
     [Header("Number Slots")]
@@ -20,25 +21,23 @@ public class LockPuzzleView : PuzzleView
     private bool _isDragging = false;
     private Vector2 _lastMousePosition;
 
-    private int[] _numberSequence;
-    private int[] _playerAttemptSequence; // Stores the player's dial inputs
-    private int _currentSequenceIndex = 0; // Tracks current position in sequence
+    private int[] _playerAttemptSequence;
+    private int _currentSequenceIndex = 0;
+
+    private void Awake()
+    {
+        _playerAttemptSequence = new int[_numberSequence.Length];
+        _currentSequenceIndex = 0;
+
+        _slot1.text = "";
+        _slot2.text = "";
+        _slot3.text = "";
+    }
 
     private void Update()
     {
         HandleMouseInput();
         UpdateDragState();
-    }
-
-    public void Initialize(int[] numberSequence)
-    {
-        _numberSequence = numberSequence;
-        _playerAttemptSequence = new int[_numberSequence.Length]; // Initialize player attempt array
-        _currentSequenceIndex = 0; // Reset sequence index
-
-        _slot1.text = "";
-        _slot2.text = "";
-        _slot3.text = "";
     }
 
     private void HandleMouseInput()

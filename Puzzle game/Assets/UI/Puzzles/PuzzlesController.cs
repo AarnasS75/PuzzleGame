@@ -3,12 +3,14 @@ using UnityEngine;
 public class PuzzlesController : MonoBehaviour
 {
     [SerializeField] private LockPuzzleView _lockPuzzleView;
+    [SerializeField] private SymbolMatchPuzzleView _symbolMatchPuzzleView;
     private PuzzleView _activePuzzleView;
     private PuzzleObject _activePuzzleObject;
 
     private void Start()
     {
         _lockPuzzleView.Hide();
+        _symbolMatchPuzzleView.Hide();
     }
 
     private void OnEnable()
@@ -34,10 +36,10 @@ public class PuzzlesController : MonoBehaviour
         switch (obj.Puzzle)
         {
             case Puzzle.Lock:
-                _lockPuzzleView.Initialize(obj.NumberSequence);
                 _activePuzzleView = _lockPuzzleView;
                 break;
             case Puzzle.MemoryTile:
+                _activePuzzleView = _symbolMatchPuzzleView;
                 break;
             case Puzzle.PipeConnection:
                 break;

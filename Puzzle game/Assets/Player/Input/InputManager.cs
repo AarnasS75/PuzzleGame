@@ -27,6 +27,8 @@ public class InputManager : MonoBehaviour
         _input.Gameplay.Look.performed += Look_performed;
         _input.Gameplay.Interact.started += Interact_performed;
         _input.Gameplay.Escape.started += Escape_started;
+
+        StaticEventsHandler.OnPuzzleCompleted += StaticEventsHandler_OnPuzzleCompleted;
     }
 
     private void OnDisable()
@@ -37,6 +39,8 @@ public class InputManager : MonoBehaviour
         _input.Gameplay.Look.performed -= Look_performed;
         _input.Gameplay.Interact.started -= Interact_performed;
         _input.Gameplay.Escape.started -= Escape_started;
+
+        StaticEventsHandler.OnPuzzleCompleted -= StaticEventsHandler_OnPuzzleCompleted;
     }
 
     private void Start()
@@ -91,6 +95,12 @@ public class InputManager : MonoBehaviour
         }
 
         OnEscapePerformed?.Invoke();
+    }
+
+    private void StaticEventsHandler_OnPuzzleCompleted(PuzzleView obj)
+    {
+        MovementEnabled = true;
+        HideCursor();
     }
 
     private bool TryInteractWithPuzzleObject()

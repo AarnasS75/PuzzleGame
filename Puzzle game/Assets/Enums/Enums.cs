@@ -14,3 +14,14 @@ public enum Puzzle
     PipeConnection,
     PatternSequence
 }
+
+public enum PipeType
+{
+    LeftToRight,
+    UpToDown,
+    UpToLeft,
+    UpToRight,
+    DownToLeft,
+    DownToRight,
+    None
+}

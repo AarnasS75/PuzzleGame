@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -6,9 +7,8 @@ public class PipesPuzzleView : PuzzleView
 {
     [Header("Grid")]
     [SerializeField] private Transform _grid;
-
-    [Header("Path")]
-    [SerializeField] private PipeSlot[] _path;
+    [SerializeField] private PipeType _startConnectionRequired;
+    [SerializeField] private PipeType _endConnectionRequired;
 
     [Header("Sprites")]
     [SerializeField] private Sprite _straightPipeSprite;
@@ -16,7 +16,6 @@ public class PipesPuzzleView : PuzzleView
 
     private PipeSlot[] _pipeSlots;
 
-    private int _currentIndex = 0;
     private bool _isCheckingPath = false;
 
     private void Awake()
@@ -27,81 +26,170 @@ public class PipesPuzzleView : PuzzleView
     private void Start()
     {
         InitializeGrid();
-        StartCoroutine(nameof(CheckPathStepByStep));
+        StartCheckingPath();
     }
 
     private void InitializeGrid()
     {
         foreach (var slot in _pipeSlots)
         {
-            if (_path.Any(x => x.name == slot.transform.name))
+            switch (slot.Type)
             {
-                continue;
-            }
+                case PipeType.None:
+                    InitializeRandomSlot(slot);
+                    break;
 
-            var randomSprite = UnityEngine.Random.value > 0.5f ? _straightPipeSprite : _turnPipeSprite;
-            slot.Initialize(randomSprite, PipeType.LeftToRight);
-        }
-
-        foreach (var pathPart in _path)
-        {
-            switch (pathPart.Type)
-            {
+                case PipeType.Horizontal:
+                case PipeType.Vertical:
+                    slot.Initialize(_straightPipeSprite);
+                    break;
                 case PipeType.UpToLeft:
                 case PipeType.UpToRight:
-                case PipeType.DownToRight:
                 case PipeType.DownToLeft:
-                    pathPart.Initialize(_turnPipeSprite, pathPart.Type);
-                    break;
-
-                case PipeType.LeftToRight:
-                case PipeType.UpToDown:
-                    pathPart.Initialize(_straightPipeSprite, pathPart.Type);
+                case PipeType.DownToRight:
+                    slot.Initialize(_turnPipeSprite);
                     break;
             }
-            pathPart.Image.color = Color.red;
         }
     }
 
-    private IEnumerator CheckPathStepByStep()
+    private void StartCheckingPath()
+    {
+        StartCoroutine(CheckPathStepByStepWithDFS());
+    }
+
+    private void InitializeRandomSlot(PipeSlot slot)
+    {
+        if (Random.value > 0.5f)
+        {
+            slot.Initialize(_straightPipeSprite);
+            slot.SetType(PipeType.Horizontal);
+        }
+        else
+        {
+            slot.Initialize(_turnPipeSprite);
+            slot.SetType(PipeType.DownToLeft);
+        }
+    }
+
+    private IEnumerator CheckPathStepByStepWithDFS()
     {
         yield return new WaitForSeconds(10);
 
-        // Start checking path step by step if it's not already running
+        DisableSlotsButtons();
+
         _isCheckingPath = true;
 
-        while (_isCheckingPath && _currentIndex < _path.Length - 1)
+        var startPipe = _pipeSlots.FirstOrDefault(slot => slot.IsStart);
+        var endPipe = _pipeSlots.FirstOrDefault(slot => slot.IsEnd);
+
+        if (startPipe == null || endPipe == null)
         {
-            // Check the current pipe with the next one
-            var currentPipe = _path[_currentIndex];
-            var nextPipe = _path[_currentIndex + 1];
-
-            // Check if the current pipe connects correctly to the next pipe
-            if (!currentPipe.IsConnectedCorrectly(nextPipe.Type))
-            {
-                Debug.LogError($"Pipe at index {_currentIndex} does not connect correctly to pipe at index {_currentIndex + 1}.");
-                _isCheckingPath = false;
-                yield break; // Stop the coroutine if there's an error
-            }
-
-            // Move to the next pipe after checking this one
-            _currentIndex++;
-
-            // Wait for the next frame before continuing (or a delay can be added here)
-            yield return null;
+            Debug.LogError("Start or End pipe is not assigned.");
+            _isCheckingPath = false;
+            yield break;
         }
 
-        // Check if the last pipe is marked as the end
-        if (_currentIndex == _path.Length - 1 && !_path[_currentIndex].IsEnd)
+        // Check if the start and end slots are of the correct types
+        if (startPipe.Type != _startConnectionRequired)
         {
-            Debug.LogError("The last pipe is not marked as the end pipe.");
-        }
-        else if (_currentIndex == _path.Length - 1)
-        {
-            Debug.Log("All pipes are connected correctly.");
+            _isCheckingPath = false;
+            startPipe.Image.color = Color.red;
+            Debug.LogError("Start pipe is not correct type");
+            yield break;
         }
 
-        _isCheckingPath = false; // End checking once finished
+        startPipe.Image.color = Color.green;
+        var visited = new HashSet<PipeSlot>();
+
+        // Start the DFS with the first slot
+        yield return StartCoroutine(DFS(startPipe, endPipe, visited));
+
+        _isCheckingPath = false;
     }
 
+    private IEnumerator DFS(PipeSlot current, PipeSlot end, HashSet<PipeSlot> visited)
+    {
+        visited.Add(current);
+
+        yield return new WaitForSeconds(1f);
+
+        if (current == end)
+        {
+            if (end.Type == _endConnectionRequired)
+            {
+                Debug.Log("Puzzle Completed!");
+                StaticEventsHandler.CallPuzzleCompletedEvent(this);
+            }
+            else
+            {
+                end.Image.color = Color.red;
+                Debug.LogError("End pipe is not correct type");
+            }
+            yield break;
+        }
+
+        // Get the neighboring pipes (up, down, left, right)
+        var neighbors = GetNeighbors(current);
+
+        foreach (var neighbor in neighbors)
+        {
+            Vector2 connectionDirection = (neighbor.transform.position - current.transform.position).normalized;
+
+            if (!visited.Contains(neighbor) && current.IsConnectedCorrectly(neighbor.Type, connectionDirection))
+            {
+                neighbor.Image.color = Color.green;
+                yield return StartCoroutine(DFS(neighbor, end, visited)); // Recursively check the neighbor
+            }
+        }
+    }
+
+    // Get neighbors by checking relative position using RectTransform
+    private List<PipeSlot> GetNeighbors(PipeSlot pipeSlot)
+    {
+        List<PipeSlot> neighbors = new List<PipeSlot>();
+        RectTransform currentRect = pipeSlot.GetComponent<RectTransform>();
+
+        foreach (var slot in _pipeSlots)
+        {
+            if (slot == pipeSlot) continue;
+
+            RectTransform otherRect = slot.GetComponent<RectTransform>();
+
+            // Calculate the distance between the current and other slots
+            Vector2 offset = (Vector2)otherRect.anchoredPosition - currentRect.anchoredPosition;
+
+            // Check for horizontal or vertical neighbors (distance of 150 in one direction, 0 in the other)
+            if (Mathf.Approximately(offset.x, 150f) && Mathf.Approximately(offset.y, 0f))
+            {
+                // Right neighbor
+                neighbors.Add(slot);
+            }
+            else if (Mathf.Approximately(offset.x, -150f) && Mathf.Approximately(offset.y, 0f))
+            {
+                // Left neighbor
+                neighbors.Add(slot);
+            }
+            else if (Mathf.Approximately(offset.x, 0f) && Mathf.Approximately(offset.y, 150f))
+            {
+                // Up neighbor
+                neighbors.Add(slot);
+            }
+            else if (Mathf.Approximately(offset.x, 0f) && Mathf.Approximately(offset.y, -150f))
+            {
+                // Down neighbor
+                neighbors.Add(slot);
+            }
+        }
+
+        return neighbors;
+    }
+
+    private void DisableSlotsButtons()
+    {
+        foreach (var pipeSlot in _pipeSlots)
+        {
+            pipeSlot.DisableButton();
+        }
+    }
 }

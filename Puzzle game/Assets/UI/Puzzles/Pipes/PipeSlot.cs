@@ -40,39 +40,84 @@ public class PipeSlot : MonoBehaviour
              });
     }
 
-    public void Initialize(Sprite randomSprite, PipeType pipeType)
+    public void Initialize(Sprite randomSprite)
     {
         _image.sprite = randomSprite;
         int angle = Random.Range(0, 4) * 90;
         _image.rectTransform.rotation = Quaternion.Euler(0, 0, angle % 360);
-        _type = pipeType;
 
         UpdatePipeTypeBasedOnRotation();
     }
 
-    public bool IsConnectedCorrectly(PipeType nextPipeType)
+    public void SetType(PipeType type)
+    {
+        _type = type;
+    }
+
+    public bool IsConnectedCorrectly(PipeType nextPipeType, Vector2 direction)
     {
         bool isConnectionGood = false;
 
-        switch (nextPipeType)
+        switch (_type)
         {
-            case PipeType.LeftToRight:
-                isConnectionGood = _type == PipeType.LeftToRight || _type == PipeType.DownToLeft || _type == PipeType.UpToLeft;
+            case PipeType.Horizontal:
+                isConnectionGood =
+                    (nextPipeType == PipeType.DownToRight && direction == Vector2.left) ||
+                    (nextPipeType == PipeType.UpToRight && direction == Vector2.left) ||
+                    (nextPipeType == PipeType.Horizontal && direction == Vector2.left) ||
+                    (nextPipeType == PipeType.Horizontal && direction == Vector2.right) ||
+                    (nextPipeType == PipeType.DownToLeft && direction == Vector2.right) ||
+                    (nextPipeType == PipeType.UpToLeft && direction == Vector2.right);
                 break;
-            case PipeType.UpToDown:
-                isConnectionGood = _type == PipeType.UpToLeft || _type == PipeType.UpToRight || _type == PipeType.UpToDown;
+
+            case PipeType.Vertical:
+                isConnectionGood =
+                    (nextPipeType == PipeType.Vertical && direction == Vector2.up) ||
+                    (nextPipeType == PipeType.DownToLeft && direction == Vector2.up) ||
+                    (nextPipeType == PipeType.DownToRight && direction == Vector2.up) ||
+                    (nextPipeType == PipeType.Vertical && direction == Vector2.down) ||
+                    (nextPipeType == PipeType.UpToRight && direction == Vector2.down) ||
+                    (nextPipeType == PipeType.UpToLeft && direction == Vector2.down);
                 break;
+
             case PipeType.DownToRight:
-                isConnectionGood = _type == PipeType.UpToLeft || _type == PipeType.LeftToRight || _type == PipeType.DownToLeft;
+                isConnectionGood =
+                    (nextPipeType == PipeType.UpToLeft && direction == Vector2.right) ||
+                    (nextPipeType == PipeType.Horizontal && direction == Vector2.right) ||
+                    (nextPipeType == PipeType.DownToLeft && direction == Vector2.right) ||
+                    (nextPipeType == PipeType.UpToRight && direction == Vector2.down) ||
+                    (nextPipeType == PipeType.UpToLeft && direction == Vector2.down) ||
+                    (nextPipeType == PipeType.Vertical && direction == Vector2.down);
                 break;
+
             case PipeType.DownToLeft:
-                isConnectionGood = _type == PipeType.UpToRight || _type == PipeType.DownToRight || _type == PipeType.LeftToRight;
+                isConnectionGood =
+                    (nextPipeType == PipeType.Horizontal && direction == Vector2.left) ||
+                    (nextPipeType == PipeType.DownToRight && direction == Vector2.left) ||
+                    (nextPipeType == PipeType.UpToRight && direction == Vector2.left) ||
+                    (nextPipeType == PipeType.Vertical && direction == Vector2.down) ||
+                    (nextPipeType == PipeType.UpToRight && direction == Vector2.down) ||
+                    (nextPipeType == PipeType.UpToLeft && direction == Vector2.down);
                 break;
+
             case PipeType.UpToRight:
-                isConnectionGood = _type == PipeType.LeftToRight || _type == PipeType.DownToLeft || _type == PipeType.UpToLeft;
+                isConnectionGood =
+                    (nextPipeType == PipeType.UpToLeft && direction == Vector2.right) ||
+                    (nextPipeType == PipeType.DownToLeft && direction == Vector2.right) ||
+                    (nextPipeType == PipeType.Horizontal && direction == Vector2.right) ||
+                    (nextPipeType == PipeType.Vertical && direction == Vector2.up) ||
+                   (nextPipeType == PipeType.DownToLeft && direction == Vector2.up) ||
+                    (nextPipeType == PipeType.DownToRight && direction == Vector2.up);
                 break;
+
             case PipeType.UpToLeft:
-                isConnectionGood = _type == PipeType.UpToDown || _type == PipeType.DownToRight || _type == PipeType.DownToLeft;
+                isConnectionGood =
+                    (nextPipeType == PipeType.DownToRight && direction == Vector2.up) ||
+                    (nextPipeType == PipeType.DownToLeft && direction == Vector2.up) ||
+                    (nextPipeType == PipeType.Vertical && direction == Vector2.up) ||
+                    (nextPipeType == PipeType.Horizontal && direction == Vector2.left) ||
+                    (nextPipeType == PipeType.UpToRight && direction == Vector2.left) ||
+                    (nextPipeType == PipeType.DownToLeft && direction == Vector2.left);
                 break;
         }
 
@@ -85,15 +130,15 @@ public class PipeSlot : MonoBehaviour
 
         currentRotationZ = Mathf.RoundToInt(currentRotationZ % 360);
 
-        if (_type == PipeType.LeftToRight || _type == PipeType.UpToDown)
+        if (_type == PipeType.Horizontal || _type == PipeType.Vertical)
         {
             if (Mathf.Approximately(currentRotationZ, 0) || Mathf.Approximately(currentRotationZ, 180))
             {
-                _type = PipeType.LeftToRight;
+                _type = PipeType.Horizontal;
             }
             else if (Mathf.Approximately(currentRotationZ, 90) || Mathf.Approximately(currentRotationZ, 270))
             {
-                _type = PipeType.UpToDown;
+                _type = PipeType.Vertical;
             }
         }
         else
@@ -115,5 +160,10 @@ public class PipeSlot : MonoBehaviour
                 _type = PipeType.UpToRight;
             }
         }
+    }
+
+    public void DisableButton()
+    {
+        _btn.interactable = false;
     }
 }

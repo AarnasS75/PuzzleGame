@@ -17,11 +17,11 @@ public enum Puzzle
 
 public enum PipeType
 {
-    LeftToRight,
-    UpToDown,
+    None,
+    Horizontal,
+    Vertical,
     UpToLeft,
     UpToRight,
     DownToLeft,
-    DownToRight,
-    None
+    DownToRight
 }

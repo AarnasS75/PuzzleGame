@@ -13,6 +13,7 @@ public class LightSlot : MonoBehaviour
 
     public void Select()
     {
+        Flash();
         OnSelected?.Invoke(this);
     }
 

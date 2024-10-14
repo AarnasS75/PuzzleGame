@@ -16,8 +16,6 @@ public class PipesPuzzleView : PuzzleView
 
     private PipeSlot[] _pipeSlots;
 
-    private bool _isCheckingPath = false;
-
     private void Awake()
     {
         _pipeSlots = _grid.GetComponentsInChildren<PipeSlot>();
@@ -78,22 +76,18 @@ public class PipesPuzzleView : PuzzleView
 
         DisableSlotsButtons();
 
-        _isCheckingPath = true;
-
         var startPipe = _pipeSlots.FirstOrDefault(slot => slot.IsStart);
         var endPipe = _pipeSlots.FirstOrDefault(slot => slot.IsEnd);
 
         if (startPipe == null || endPipe == null)
         {
             Debug.LogError("Start or End pipe is not assigned.");
-            _isCheckingPath = false;
             yield break;
         }
 
         // Check if the start and end slots are of the correct types
         if (startPipe.Type != _startConnectionRequired)
         {
-            _isCheckingPath = false;
             startPipe.Image.color = Color.red;
             Debug.LogError("Start pipe is not correct type");
             yield break;
@@ -104,8 +98,6 @@ public class PipesPuzzleView : PuzzleView
 
         // Start the DFS with the first slot
         yield return StartCoroutine(DFS(startPipe, endPipe, visited));
-
-        _isCheckingPath = false;
     }
 
     private IEnumerator DFS(PipeSlot current, PipeSlot end, HashSet<PipeSlot> visited)

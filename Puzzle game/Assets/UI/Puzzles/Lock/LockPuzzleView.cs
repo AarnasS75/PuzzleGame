@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,6 +25,8 @@ public class LockPuzzleView : PuzzleView
     private int[] _playerAttemptSequence;
     private int _currentSequenceIndex = 0;
 
+    private bool _waitingForResult = false;
+
     private void Awake()
     {
         _playerAttemptSequence = new int[_numberSequence.Length];
@@ -42,7 +45,7 @@ public class LockPuzzleView : PuzzleView
 
     private void HandleMouseInput()
     {
-        if (_isDragging)
+        if (_isDragging && !_waitingForResult)
         {
             Vector2 currentMousePosition = Mouse.current.position.ReadValue();
             float angleDelta = GetAngleDelta(currentMousePosition);
@@ -72,6 +75,11 @@ public class LockPuzzleView : PuzzleView
 
     private void UpdateDragState()
     {
+        if (_waitingForResult)
+        {
+            return;
+        }
+
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             _isDragging = true;
@@ -126,6 +134,7 @@ public class LockPuzzleView : PuzzleView
         _playerAttemptSequence[_currentSequenceIndex] = currentNumber;
         _currentSequenceIndex++;
 
+        // Update the UI slots
         if (string.IsNullOrEmpty(_slot1.text))
         {
             _slot1.text = currentNumber.ToString();
@@ -139,21 +148,30 @@ public class LockPuzzleView : PuzzleView
             _slot3.text = currentNumber.ToString();
         }
 
-        // Check if the player has finished entering the sequence
+        // If the player has entered all the numbers in the sequence
         if (_currentSequenceIndex >= _numberSequence.Length)
         {
-            // Check if the player's attempt matches the correct sequence
-            if (CheckIfSequenceIsCorrect())
-            {
-                print("Lock opened! The combination is correct.");
-                StaticEventsHandler.CallPuzzleCompletedEvent(this);
-            }
-            else
-            {
-                print("Incorrect combination. Try again.");
-                ResetPlayerAttempt();
-            }
+            StartCoroutine(nameof(WaitForResult));
         }
+    }
+
+    private IEnumerator WaitForResult()
+    {
+        _waitingForResult = true;
+        yield return new WaitForSeconds(1.5f); // Wait for the delay
+
+        if (CheckIfSequenceIsCorrect())
+        {
+            print("Lock opened! The combination is correct.");
+            StaticEventsHandler.CallPuzzleCompletedEvent(this);
+        }
+        else
+        {
+            print("Incorrect combination. Try again.");
+            ResetPlayerAttempt();
+        }
+
+        _waitingForResult = false;
     }
 
     private bool CheckIfSequenceIsCorrect()

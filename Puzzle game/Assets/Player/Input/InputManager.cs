@@ -97,7 +97,7 @@ public class InputManager : MonoBehaviour
         OnEscapePerformed?.Invoke();
     }
 
-    private void StaticEventsHandler_OnPuzzleCompleted(PuzzleView obj)
+    private void StaticEventsHandler_OnPuzzleCompleted(View obj)
     {
         MovementEnabled = true;
         HideCursor();

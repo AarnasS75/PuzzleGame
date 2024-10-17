@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class PuzzlesController : MonoBehaviour
+public class PuzzlesView : View
 {
     [SerializeField] private LockPuzzleView _lockPuzzleView;
     [SerializeField] private SymbolMatchPuzzleView _symbolMatchPuzzleView;
     [SerializeField] private PipesPuzzleView _pipesPuzzleView;
     [SerializeField] private FlashingLightsView _flashingLightsView;
 
-    private PuzzleView _activePuzzleView;
+    private View _activePuzzleView;
 
     private void Start()
     {
@@ -19,21 +19,15 @@ public class PuzzlesController : MonoBehaviour
 
     private void OnEnable()
     {
-        InputManager.OnPuzzleObjectSelected += InputManager_OnPuzzleObjectSelected;
-        InputManager.OnEscapePerformed += InputManager_OnEscapePerformed;
-
         StaticEventsHandler.OnPuzzleCompleted += StaticEventsHandler_OnPuzzleCompleted;
     }
 
     private void OnDisable()
     {
-        InputManager.OnPuzzleObjectSelected -= InputManager_OnPuzzleObjectSelected;
-        InputManager.OnEscapePerformed -= InputManager_OnEscapePerformed;
-
         StaticEventsHandler.OnPuzzleCompleted -= StaticEventsHandler_OnPuzzleCompleted;
     }
 
-    private void InputManager_OnPuzzleObjectSelected(PuzzleObject obj)
+    public void ShowPuzzle(PuzzleObject obj)
     {
         switch (obj.Puzzle)
         {
@@ -53,7 +47,7 @@ public class PuzzlesController : MonoBehaviour
         _activePuzzleView.Show();
     }
 
-    private void InputManager_OnEscapePerformed()
+    public void ClosePuzzle()
     {
         if (_activePuzzleView != null)
         {
@@ -61,7 +55,7 @@ public class PuzzlesController : MonoBehaviour
         }
     }
 
-    private void StaticEventsHandler_OnPuzzleCompleted(PuzzleView puzzleView)
+    private void StaticEventsHandler_OnPuzzleCompleted(View puzzleView)
     {
         ResetView();
     }

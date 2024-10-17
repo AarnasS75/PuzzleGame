@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class SymbolMatchPuzzleView : PuzzleView
+public class SymbolMatchPuzzleView : View
 {
     [SerializeField] private SymbolSlot _symbolSlotPrefab;  // Prefab for slot
     [SerializeField] private Transform _slotsGrid;  // The grid layout parent

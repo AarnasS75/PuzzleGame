@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class LockPuzzleView : PuzzleView
+public class LockPuzzleView : View
 {
     [Header("Dial Configuration")]
     [SerializeField] private int[] _numberSequence;

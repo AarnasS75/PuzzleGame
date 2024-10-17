@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PipesPuzzleView : PuzzleView
+public class PipesPuzzleView : View
 {
     [Header("Grid")]
     [SerializeField] private Transform _grid;

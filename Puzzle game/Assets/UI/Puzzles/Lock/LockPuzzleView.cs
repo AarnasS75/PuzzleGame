@@ -27,6 +27,8 @@ public class LockPuzzleView : View
 
     private bool _waitingForResult = false;
 
+    private bool _isSolved = false;
+
     private void Awake()
     {
         _playerAttemptSequence = new int[_numberSequence.Length];
@@ -39,6 +41,11 @@ public class LockPuzzleView : View
 
     private void Update()
     {
+        if (_isSolved)
+        {
+            return;
+        }
+
         HandleMouseInput();
         UpdateDragState();
     }
@@ -158,11 +165,11 @@ public class LockPuzzleView : View
     private IEnumerator WaitForResult()
     {
         _waitingForResult = true;
-        yield return new WaitForSeconds(1.5f); // Wait for the delay
+        yield return new WaitForSeconds(1.5f);
 
         if (CheckIfSequenceIsCorrect())
         {
-            print("Lock opened! The combination is correct.");
+            _isSolved = true;
             StaticEventsHandler.CallPuzzleCompletedEvent(this);
         }
         else

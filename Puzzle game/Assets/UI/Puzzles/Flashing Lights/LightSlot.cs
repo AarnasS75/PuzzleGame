@@ -13,6 +13,11 @@ public class LightSlot : MonoBehaviour
 
     public void Select()
     {
+        if (!FlashingLightsPuzzleView.PlayerTurn)
+        {
+            return;
+        }
+
         Flash();
         OnSelected?.Invoke(this);
     }

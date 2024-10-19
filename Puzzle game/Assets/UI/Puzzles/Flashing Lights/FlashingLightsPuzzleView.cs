@@ -13,10 +13,11 @@ public class FlashingLightsPuzzleView : View
     private List<int> _flashPattern;
     private int _currentStep;
     private int _patternsCompleted;
-    private bool _isPlaying;
     private float _timer;
 
     private WaitForSeconds _delayBetweenFlashes;
+
+    public static bool PlayerTurn;
 
     private void Awake()
     {
@@ -36,7 +37,7 @@ public class FlashingLightsPuzzleView : View
 
     private void Update()
     {
-        if (_isPlaying)
+        if (PlayerTurn)
         {
             _timer -= Time.deltaTime;
             if (_timer <= 0f)
@@ -49,8 +50,6 @@ public class FlashingLightsPuzzleView : View
 
     private void Slot_OnSelected(LightSlot selectedSlot)
     {
-        if (!_isPlaying) return;
-
         int index = System.Array.IndexOf(_slots, selectedSlot);
 
         if (index == _flashPattern[_currentStep])
@@ -66,7 +65,7 @@ public class FlashingLightsPuzzleView : View
                 if (_patternsCompleted >= _totalPatterns)
                 {
                     Debug.Log("All patterns completed! Puzzle solved.");
-                    PuzzleCompleted(); // Event or method to handle puzzle completion
+                    PuzzleCompleted();
                 }
                 else
                 {
@@ -84,13 +83,13 @@ public class FlashingLightsPuzzleView : View
     private void StartGame()
     {
         _timer = _timeLimit; // Reset timer for each pattern
-        _isPlaying = false;
+        PlayerTurn = false;
         StartCoroutine(nameof(FlashingLightsRoutine));
     }
 
     private void ResetPattern()
     {
-        _isPlaying = false;
+        PlayerTurn = false;
         _currentStep = 0;
         StartGame(); // Restart the current pattern
     }
@@ -127,7 +126,7 @@ public class FlashingLightsPuzzleView : View
             yield return _delayBetweenFlashes; // Adjust the delay between flashes if needed
         }
 
-        _isPlaying = true; // Player can start repeating the pattern
+        PlayerTurn = true; // Player can start repeating the pattern
     }
 
     private void PuzzleCompleted()

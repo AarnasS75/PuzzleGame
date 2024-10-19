@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,7 +15,9 @@ public class SymbolSlot : MonoBehaviour
     public void Initialize(Sprite symbol)
     {
         _symbol = symbol;
-        HideSymbol();
+        _image.sprite = null;
+        _isRevealed = false;
+        _image.transform.localRotation = Quaternion.Euler(0, 180, 0);
     }
 
     public void Select()
@@ -26,8 +29,19 @@ public class SymbolSlot : MonoBehaviour
 
         if (!_isRevealed)
         {
-            ShowSymbol();
-            OnSymbolSelected?.Invoke(this);
+            transform.DORotate(new Vector3(0, 180, 0), 0.2f, RotateMode.LocalAxisAdd)
+                .OnUpdate(() =>
+                {
+                    if (transform.eulerAngles.y >= 90 && transform.eulerAngles.y < 180)
+                    {
+                        ShowSymbol();
+                    }
+                })
+                .OnComplete(() =>
+                {
+                    // Rotation complete, invoke the event
+                    OnSymbolSelected?.Invoke(this);
+                });
         }
     }
 
@@ -39,8 +53,20 @@ public class SymbolSlot : MonoBehaviour
 
     public void HideSymbol()
     {
-        _image.sprite = null;
-        _isRevealed = false;
+        transform.DORotate(new Vector3(0, -180, 0), 0.2f, RotateMode.LocalAxisAdd)
+                 .OnUpdate(() =>
+                 {
+                     // When we reach 90 degrees, hide the symbol (halfway point)
+                     if (transform.eulerAngles.y >= 90 && transform.eulerAngles.y < 180)
+                     {
+                         _image.sprite = null; // Hide the symbol
+                     }
+                 })
+                 .OnComplete(() =>
+                 {
+                     // Rotation complete, mark the symbol as hidden
+                     _isRevealed = false;
+                 });
     }
 
     public Sprite GetSymbol()

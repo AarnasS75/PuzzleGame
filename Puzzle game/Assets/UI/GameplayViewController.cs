@@ -44,9 +44,14 @@ public class GameplayViewController : MonoBehaviour
         {
             Show<HudView>();
         }
-        else if (_currentView is HudView or PuzzlesView)
+        else if (_currentView is HudView)
         {
             Show<OptionsView>();
+        }
+        else if (_currentView is PuzzlesView)
+        {
+            GetTab<PuzzlesView>().ResetView();
+            Show<HudView>();
         }
     }
 

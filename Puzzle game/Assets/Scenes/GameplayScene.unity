@@ -10865,6 +10865,11 @@ PrefabInstance:
       propertyPath: _sensX
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 3307153911378333994, guid: b7462c39ce1941445a9953bb04e7e48c,
+        type: 3}
+      propertyPath: _gravity
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4294353680175207752, guid: b7462c39ce1941445a9953bb04e7e48c,
         type: 3}
       propertyPath: field of view

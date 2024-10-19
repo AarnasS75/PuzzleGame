@@ -4,8 +4,10 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private float _moveSpeed = 7f;
+    [SerializeField] private float _gravity = 10f;
 
     private Vector2 _input;
+    private float _verticalVelocity;
 
     private void OnEnable()
     {
@@ -31,6 +33,13 @@ public class PlayerMovement : MonoBehaviour
         }
 
         var horizontalVelocity = (transform.right * _input.x + transform.forward * _input.y) * _moveSpeed;
-        _characterController.Move(horizontalVelocity * Time.deltaTime);
+
+        if (!_characterController.isGrounded)
+        {
+            _verticalVelocity -= _gravity * Time.deltaTime;
+        }
+
+        var movement = horizontalVelocity + Vector3.up * _verticalVelocity;
+        _characterController.Move(movement * Time.deltaTime);
     }
 }

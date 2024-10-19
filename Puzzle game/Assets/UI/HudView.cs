@@ -4,11 +4,6 @@ public class HudView : View
 {
     [SerializeField] private HudSlot[] _slots;
 
-    private void Awake()
-    {
-        StaticEventsHandler.OnPuzzleCompleted += StaticEventsHandler_OnPuzzleCompleted;
-    }
-
     private void Start()
     {
         foreach (var slot in _slots)
@@ -17,7 +12,7 @@ public class HudView : View
         }
     }
 
-    private void StaticEventsHandler_OnPuzzleCompleted(View obj)
+    public void UpdateHud(View obj)
     {
         if (obj is PipesPuzzleView)
         {
@@ -27,7 +22,7 @@ public class HudView : View
         {
             _slots[1].Initialize(GameResources.Instance.LockPuzzleIcon);
         }
-        else if (obj is FlashingLightsView)
+        else if (obj is FlashingLightsPuzzleView)
         {
             _slots[2].Initialize(GameResources.Instance.FlashingLightsPuzzleIcon);
         }
@@ -35,5 +30,10 @@ public class HudView : View
         {
             _slots[3].Initialize(GameResources.Instance.MemoryPuzzleIcon);
         }
+    }
+
+    public bool TryUsePuzzlePiece(int buttonPressed)
+    {
+        return _slots[buttonPressed - 1].TryUse();
     }
 }

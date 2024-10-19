@@ -1,30 +1,15 @@
+using System.Linq;
 using UnityEngine;
 
 public class PuzzlesView : View
 {
-    [SerializeField] private LockPuzzleView _lockPuzzleView;
-    [SerializeField] private SymbolMatchPuzzleView _symbolMatchPuzzleView;
-    [SerializeField] private PipesPuzzleView _pipesPuzzleView;
-    [SerializeField] private FlashingLightsView _flashingLightsView;
+    [SerializeField] private View[] _puzzlesViews;
 
     private View _activePuzzleView;
 
-    private void Start()
+    private void Awake()
     {
-        _lockPuzzleView.Hide();
-        _symbolMatchPuzzleView.Hide();
-        _pipesPuzzleView.Hide();
-        _flashingLightsView.Hide();
-    }
-
-    private void OnEnable()
-    {
-        StaticEventsHandler.OnPuzzleCompleted += StaticEventsHandler_OnPuzzleCompleted;
-    }
-
-    private void OnDisable()
-    {
-        StaticEventsHandler.OnPuzzleCompleted -= StaticEventsHandler_OnPuzzleCompleted;
+        Initialize();
     }
 
     public void ShowPuzzle(PuzzleObject obj)
@@ -32,37 +17,32 @@ public class PuzzlesView : View
         switch (obj.Puzzle)
         {
             case Puzzle.Lock:
-                _activePuzzleView = _lockPuzzleView;
+                _activePuzzleView = _puzzlesViews.FirstOrDefault(x => x.GetType() == typeof(LockPuzzleView));
                 break;
             case Puzzle.MemoryTile:
-                _activePuzzleView = _symbolMatchPuzzleView;
+                _activePuzzleView = _puzzlesViews.FirstOrDefault(x => x.GetType() == typeof(SymbolMatchPuzzleView));
                 break;
             case Puzzle.PipeConnection:
-                _activePuzzleView = _pipesPuzzleView;
+                _activePuzzleView = _puzzlesViews.FirstOrDefault(x => x.GetType() == typeof(PipesPuzzleView));
                 break;
             case Puzzle.PatternSequence:
-                _activePuzzleView = _flashingLightsView;
+                _activePuzzleView = _puzzlesViews.FirstOrDefault(x => x.GetType() == typeof(FlashingLightsPuzzleView));
                 break;
         }
         _activePuzzleView.Show();
     }
 
-    public void ClosePuzzle()
-    {
-        if (_activePuzzleView != null)
-        {
-            ResetView();
-        }
-    }
-
-    private void StaticEventsHandler_OnPuzzleCompleted(View puzzleView)
-    {
-        ResetView();
-    }
-
-    private void ResetView()
+    public void ResetView()
     {
         _activePuzzleView.Hide();
         _activePuzzleView = null;
+    }
+
+    private void Initialize()
+    {
+        for (int i = 0; i < _puzzlesViews.Length; i++)
+        {
+            _puzzlesViews[i].Hide();
+        }
     }
 }

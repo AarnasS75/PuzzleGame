@@ -13,6 +13,7 @@ public class InputManager : MonoBehaviour
     public static event Action OnEscapePerformed;
 
     public static event Action<PuzzleObject> OnPuzzleObjectSelected;
+    public static event Action<EndPuzzle, int> OnEndPuzzleObjectSelected;
 
     private void Awake()
     {
@@ -43,64 +44,85 @@ public class InputManager : MonoBehaviour
         StaticEventsHandler.OnPuzzleCompleted -= StaticEventsHandler_OnPuzzleCompleted;
     }
 
-    private void Start()
-    {
-        HideCursor();
-    }
-
-    private void Movement_performed(InputAction.CallbackContext ctx)
-    {
-        var input = ctx.ReadValue<Vector2>();
-
-        if (!MovementEnabled)
-        {
-            return;
-        }
-
-        OnMovementPerformed?.Invoke(input);
-    }
-
-    private void Look_performed(InputAction.CallbackContext ctx)
-    {
-        var input = ctx.ReadValue<Vector2>();
-
-        if (!MovementEnabled)
-        {
-            return;
-        }
-
-        OnLookPerformed?.Invoke(input);
-    }
-
-    private void Interact_performed(InputAction.CallbackContext ctx)
-    {
-        if (TryInteractWithPuzzleObject())
-        {
-            MovementEnabled = false;
-            ShowCursor();
-        }
-    }
-
-    private void Escape_started(InputAction.CallbackContext obj)
+    public static void CallEscapeButtonPressed()
     {
         if (!MovementEnabled)
         {
-            MovementEnabled = true;
-            HideCursor();
+            EnableInput();
         }
         else
         {
-            MovementEnabled = false;
-            ShowCursor();
+            DisableInput();
         }
 
         OnEscapePerformed?.Invoke();
     }
 
+    private void Start()
+    {
+        EnableInput();
+    }
+
+    private void Movement_performed(InputAction.CallbackContext ctx)
+    {
+        if (!MovementEnabled)
+        {
+            return;
+        }
+
+        OnMovementPerformed?.Invoke(ctx.ReadValue<Vector2>());
+    }
+
+    private void Look_performed(InputAction.CallbackContext ctx)
+    {
+        if (!MovementEnabled)
+        {
+            return;
+        }
+
+        OnLookPerformed?.Invoke(ctx.ReadValue<Vector2>());
+    }
+
+    private void Interact_performed(InputAction.CallbackContext ctx)
+    {
+        var control = ctx.control.name; // Get the name of the key pressed
+
+        if (control == "e")
+        {
+            if (TryInteractWithPuzzleObject())
+            {
+                DisableInput();
+            }
+        }
+        else if (control == "1" || control == "2" || control == "3" || control == "4")
+        {
+            TryInteractWithEndPuzzle(int.Parse(control));
+        }
+    }
+
+    private void TryInteractWithEndPuzzle(int number)
+    {
+        var playerCamera = Camera.main.transform;
+
+        var ray = new Ray(playerCamera.position, playerCamera.forward);
+
+        if (Physics.Raycast(ray, out var hit, 2f)) // 2f - interaction raycast range
+        {
+            if (hit.transform.TryGetComponent(out EndPuzzle endPuzzleObj))
+            {
+                OnEndPuzzleObjectSelected?.Invoke(endPuzzleObj, number);
+            }
+        }
+    }
+
+    private void Escape_started(InputAction.CallbackContext obj)
+    {
+        CallEscapeButtonPressed();
+    }
+
     private void StaticEventsHandler_OnPuzzleCompleted(View obj)
     {
-        MovementEnabled = true;
-        HideCursor();
+        EnableInput();
     }
 
     private bool TryInteractWithPuzzleObject()
@@ -121,14 +143,16 @@ public class InputManager : MonoBehaviour
         return false;
     }
 
-    private void HideCursor()
+    private static void EnableInput()
     {
+        MovementEnabled = true;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    private void ShowCursor()
+    private static void DisableInput()
     {
+        MovementEnabled = false;
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
     }

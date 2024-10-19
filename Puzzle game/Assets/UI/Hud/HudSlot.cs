@@ -16,4 +16,16 @@ public class HudSlot : MonoBehaviour
         _image.sprite = null;
         _image.color = new Color(1, 1, 1, 0);
     }
+
+    public bool TryUse()
+    {
+        if (_image != null)
+        {
+            ResetSlot();
+            return true;
+        }
+
+        print("Slot is empty");
+        return false;
+    }
 }

@@ -2,21 +2,66 @@ using UnityEngine;
 
 public class GameplayViewController : MonoBehaviour
 {
-
     [SerializeField] private View _startingView;
     [SerializeField] private View[] _views;
 
     private View _currentView;
 
-    private void Start()
+    private void Awake()
     {
         Initialize();
+    }
+
+    private void OnEnable()
+    {
         InputManager.OnPuzzleObjectSelected += InputManager_OnPuzzleObjectSelected;
+        InputManager.OnEndPuzzleObjectSelected += InputManager_OnEndPuzzleObjectSelected;
+        InputManager.OnEscapePerformed += InputManager_OnEscapePerformed;
+        StaticEventsHandler.OnPuzzleCompleted += StaticEventsHandler_OnPuzzleCompleted;
+    }
+
+    private void OnDisable()
+    {
+        InputManager.OnPuzzleObjectSelected -= InputManager_OnPuzzleObjectSelected;
+        InputManager.OnEndPuzzleObjectSelected -= InputManager_OnEndPuzzleObjectSelected;
+        InputManager.OnEscapePerformed -= InputManager_OnEscapePerformed;
+        StaticEventsHandler.OnPuzzleCompleted -= StaticEventsHandler_OnPuzzleCompleted;
+    }
+
+    private void InputManager_OnEndPuzzleObjectSelected(EndPuzzle endPuzzleObj, int numberPressed)
+    {
+        var hudView = GetTab<HudView>();
+
+        if (hudView.TryUsePuzzlePiece(numberPressed))
+        {
+            endPuzzleObj.AddPuzzlePiece();
+        }
+    }
+
+    private void InputManager_OnEscapePerformed()
+    {
+        if (_currentView is OptionsView)
+        {
+            Show<HudView>();
+        }
+        else if (_currentView is HudView or PuzzlesView)
+        {
+            Show<OptionsView>();
+        }
+    }
+
+    private void StaticEventsHandler_OnPuzzleCompleted(View puzzleView)
+    {
+        GetTab<PuzzlesView>().ResetView();
+        GetTab<HudView>().UpdateHud(puzzleView);
+
+        Show<HudView>();
     }
 
     private void InputManager_OnPuzzleObjectSelected(PuzzleObject obj)
     {
         Show<PuzzlesView>();
+        GetTab<PuzzlesView>().ShowPuzzle(obj);
     }
 
     private void Initialize()

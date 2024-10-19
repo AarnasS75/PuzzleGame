@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FlashingLightsView : View
+public class FlashingLightsPuzzleView : View
 {
     [SerializeField] private Transform _grid;
     [SerializeField] private int _totalPatterns = 5; // Total patterns player needs to complete

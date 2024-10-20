@@ -7,7 +7,7 @@ public class GameplayViewController : MonoBehaviour
 
     private View _currentView;
 
-    private void Awake()
+    private void Start()
     {
         Initialize();
     }
@@ -73,6 +73,7 @@ public class GameplayViewController : MonoBehaviour
     {
         for (int i = 0; i < _views.Length; i++)
         {
+            _views[i].Initialize();
             _views[i].Hide();
         }
 

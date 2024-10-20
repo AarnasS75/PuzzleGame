@@ -16,19 +16,20 @@ public class PipesPuzzleView : View
 
     private PipeSlot[] _pipeSlots;
 
-    private void Awake()
-    {
-        _pipeSlots = _grid.GetComponentsInChildren<PipeSlot>();
-    }
-
     private void Start()
     {
-        InitializeGrid();
         StartCheckingPath();
+    }
+
+    public override void Initialize()
+    {
+        InitializeGrid();
     }
 
     private void InitializeGrid()
     {
+        _pipeSlots = _grid.GetComponentsInChildren<PipeSlot>();
+
         foreach (var slot in _pipeSlots)
         {
             switch (slot.Type)

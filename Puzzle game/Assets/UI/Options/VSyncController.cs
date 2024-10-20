@@ -1,30 +1,33 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class VSyncController : OptionsController<bool>
 {
-    private void Awake()
-    {
-        _optionsKey = Settings.VSYNC_VALUE;
-    }
+    [SerializeField] private Toggle _toggle;
 
     public override void ApplySetting(bool value)
     {
         QualitySettings.vSyncCount = value ? 1 : 0;
-
-        Save();
     }
 
-    protected override void Save()
+    public override void Save()
     {
         PlayerPrefs.SetInt(Settings.VSYNC_VALUE, QualitySettings.vSyncCount);
 
         PlayerPrefs.Save();
     }
 
-    protected override void Load()
+    public override void Load()
     {
-        int vsyncSetting = PlayerPrefs.GetInt(Settings.VSYNC_VALUE, 0);
+        if (PlayerPrefs.HasKey(Settings.VSYNC_VALUE))
+        {
+            QualitySettings.vSyncCount = PlayerPrefs.GetInt(Settings.VSYNC_VALUE, 0);
 
-        QualitySettings.vSyncCount = vsyncSetting;
+            _toggle.isOn = QualitySettings.vSyncCount == 1;
+        }
+        else
+        {
+            Save();
+        }
     }
 }

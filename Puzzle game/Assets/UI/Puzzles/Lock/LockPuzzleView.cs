@@ -29,7 +29,7 @@ public class LockPuzzleView : View
 
     private bool _isSolved = false;
 
-    private void Awake()
+    public override void Initialize()
     {
         _playerAttemptSequence = new int[_numberSequence.Length];
         _currentSequenceIndex = 0;

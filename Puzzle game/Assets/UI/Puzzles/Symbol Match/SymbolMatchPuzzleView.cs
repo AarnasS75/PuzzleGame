@@ -16,19 +16,18 @@ public class SymbolMatchPuzzleView : View
 
     private int _matchCount = 0;
 
-    private void Awake()
+    public override void Initialize()
     {
         InitializeSlots();
     }
 
     private void InitializeSlots()
     {
-        // Ensure we have pairs of symbols
         var symbolList = new List<Sprite>();
         foreach (var symbol in _symbols)
         {
             symbolList.Add(symbol);
-            symbolList.Add(symbol); // Each symbol appears twice
+            symbolList.Add(symbol);
         }
 
         symbolList = symbolList.OrderBy(x => Random.value).ToList();

@@ -12,19 +12,7 @@ public class ResolutionController : OptionsController<int>
     private float currentRefreshRate;
     private int currentResolutionIndex = 0;
 
-    private void Awake()
-    {
-        _optionsKey = Settings.RESOLUTION_X_VALUE;
-    }
-
-    protected override void Start()
-    {
-        base.Start();
-
-        InitializeDropdown();
-    }
-
-    private void InitializeDropdown()
+    public void InitializeDropdown()
     {
         _resolutions = Screen.resolutions;
         _filteredResolutions = new List<Resolution>();
@@ -71,21 +59,54 @@ public class ResolutionController : OptionsController<int>
     {
         Resolution resolution = _filteredResolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, true);
+
+        PlayerPrefs.SetInt(Settings.RESOLUTION_X_VALUE, resolution.width);
+        PlayerPrefs.SetInt(Settings.RESOLUTION_Y_VALUE, resolution.height);
+
+        Save();
     }
 
-    protected override void Save()
+    public override void Save()
     {
-        PlayerPrefs.SetInt(Settings.RESOLUTION_X_VALUE, Screen.currentResolution.width);
-        PlayerPrefs.SetInt(Settings.RESOLUTION_Y_VALUE, Screen.currentResolution.height);
-
         PlayerPrefs.Save();
     }
 
-    protected override void Load()
+    public override void Load()
     {
-        var resX = PlayerPrefs.GetInt(Settings.RESOLUTION_X_VALUE);
-        var resY = PlayerPrefs.GetInt(Settings.RESOLUTION_Y_VALUE);
+        // Check if the resolution settings are stored in PlayerPrefs
+        if (PlayerPrefs.HasKey(Settings.RESOLUTION_X_VALUE) && PlayerPrefs.HasKey(Settings.RESOLUTION_Y_VALUE))
+        {
+            var resX = PlayerPrefs.GetInt(Settings.RESOLUTION_X_VALUE);
+            var resY = PlayerPrefs.GetInt(Settings.RESOLUTION_Y_VALUE);
 
-        Screen.SetResolution(resX, resY, true);
+            // Find the index of the saved resolution in the filtered resolutions list
+            int savedResolutionIndex = _filteredResolutions.FindIndex(res =>
+                res.width == resX && res.height == resY &&
+                (float)res.refreshRateRatio.value == currentRefreshRate);
+
+            // If the resolution is found, set the dropdown value to the corresponding index
+            if (savedResolutionIndex != -1)
+            {
+                resolutionDropdown.value = savedResolutionIndex;
+                resolutionDropdown.RefreshShownValue();
+
+                // Optionally, set the screen resolution to match the saved resolution
+                Screen.SetResolution(resX, resY, true);
+            }
+            else
+            {
+                // If resolution not found, revert to the current resolution or default behavior
+                resolutionDropdown.value = currentResolutionIndex;
+                resolutionDropdown.RefreshShownValue();
+            }
+        }
+        else
+        {
+            // If no resolution is saved, set the current resolution as default and save it
+            resolutionDropdown.value = currentResolutionIndex;
+            resolutionDropdown.RefreshShownValue();
+            Save();  // Save the current resolution to PlayerPrefs
+        }
     }
+
 }

@@ -1,24 +1,30 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class VolumeController : OptionsController<float>
 {
-    private void Awake()
-    {
-        _optionsKey = Settings.VOLUME_VALUE;
-    }
+    [SerializeField] private Slider _volumeSlider;
 
     public override void ApplySetting(float value)
     {
         AudioListener.volume = value;
     }
 
-    protected override void Save()
+    public override void Save()
     {
         PlayerPrefs.SetFloat(Settings.VOLUME_VALUE, AudioListener.volume);
+        PlayerPrefs.Save();
     }
 
-    protected override void Load()
+    public override void Load()
     {
-        AudioListener.volume = PlayerPrefs.GetFloat(Settings.VOLUME_VALUE);
+        if (PlayerPrefs.HasKey(Settings.VOLUME_VALUE))
+        {
+            _volumeSlider.value = AudioListener.volume = PlayerPrefs.GetFloat(Settings.VOLUME_VALUE);
+        }
+        else
+        {
+            Save();
+        }
     }
 }

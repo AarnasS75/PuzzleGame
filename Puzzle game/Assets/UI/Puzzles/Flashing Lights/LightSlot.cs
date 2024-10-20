@@ -39,4 +39,9 @@ public class LightSlot : MonoBehaviour
     {
         _image.color = Color.white;
     }
+
+    public void Complete()
+    {
+        _image.color = Color.green;
+    }
 }

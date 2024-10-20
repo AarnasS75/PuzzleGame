@@ -7,9 +7,13 @@ public class PuzzlesView : View
 
     private View _activePuzzleView;
 
-    private void Awake()
+    public override void Initialize()
     {
-        Initialize();
+        for (int i = 0; i < _puzzlesViews.Length; i++)
+        {
+            _puzzlesViews[i].Initialize();
+            _puzzlesViews[i].Hide();
+        }
     }
 
     public void ShowPuzzle(PuzzleObject obj)
@@ -36,13 +40,5 @@ public class PuzzlesView : View
     {
         _activePuzzleView.Hide();
         _activePuzzleView = null;
-    }
-
-    private void Initialize()
-    {
-        for (int i = 0; i < _puzzlesViews.Length; i++)
-        {
-            _puzzlesViews[i].Hide();
-        }
     }
 }

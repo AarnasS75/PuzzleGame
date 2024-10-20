@@ -19,7 +19,7 @@ public class FlashingLightsPuzzleView : View
 
     public static bool PlayerTurn;
 
-    private void Awake()
+    public override void Initialize()
     {
         _slots = _grid.GetComponentsInChildren<LightSlot>();
         _delayBetweenFlashes = new WaitForSeconds(_timeBetweenFlashes);
@@ -132,6 +132,13 @@ public class FlashingLightsPuzzleView : View
     private void PuzzleCompleted()
     {
         Debug.Log("Puzzle is fully completed!");
+
+        PlayerTurn = false;
+        foreach (var slot in _slots)
+        {
+            slot.Complete();
+        }
+
         StaticEventsHandler.CallPuzzleCompletedEvent(this);
     }
 }

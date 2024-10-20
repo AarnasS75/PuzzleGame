@@ -15,7 +15,8 @@ public class SymbolSlot : MonoBehaviour
     public void Initialize(Sprite symbol)
     {
         _symbol = symbol;
-        _image.sprite = null;
+        _image.color = new Color(1, 1, 1, 0);
+        _image.sprite = symbol;
         _isRevealed = false;
         _image.transform.localRotation = Quaternion.Euler(0, 180, 0);
     }
@@ -47,7 +48,7 @@ public class SymbolSlot : MonoBehaviour
 
     public void ShowSymbol()
     {
-        _image.sprite = _symbol;
+        _image.color = new Color(1, 1, 1, 1);
         _isRevealed = true;
     }
 
@@ -59,7 +60,7 @@ public class SymbolSlot : MonoBehaviour
                      // When we reach 90 degrees, hide the symbol (halfway point)
                      if (transform.eulerAngles.y >= 90 && transform.eulerAngles.y < 180)
                      {
-                         _image.sprite = null; // Hide the symbol
+                         _image.color = new Color(1, 1, 1, 0);
                      }
                  })
                  .OnComplete(() =>

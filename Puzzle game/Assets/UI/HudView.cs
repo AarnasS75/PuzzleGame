@@ -4,7 +4,7 @@ public class HudView : View
 {
     [SerializeField] private HudSlot[] _slots;
 
-    private void Start()
+    public override void Initialize()
     {
         foreach (var slot in _slots)
         {

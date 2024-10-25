@@ -43,10 +43,7 @@ public class PipeSlot : MonoBehaviour
     public void Initialize(Sprite randomSprite)
     {
         _image.sprite = randomSprite;
-        int angle = Random.Range(0, 4) * 90;
-        _image.rectTransform.rotation = Quaternion.Euler(0, 0, angle % 360);
-
-        UpdatePipeTypeBasedOnRotation();
+        SetRandomRotation();
     }
 
     public void SetType(PipeType type)
@@ -165,5 +162,19 @@ public class PipeSlot : MonoBehaviour
     public void DisableButton()
     {
         _btn.interactable = false;
+    }
+
+    public void Reset()
+    {
+        _image.color = Color.white;
+        _btn.interactable = true;
+        SetRandomRotation();
+    }
+
+    private void SetRandomRotation()
+    {
+        var angle = Random.Range(0, 4) * 90;
+        _image.rectTransform.rotation = Quaternion.Euler(0, 0, angle % 360);
+        UpdatePipeTypeBasedOnRotation();
     }
 }

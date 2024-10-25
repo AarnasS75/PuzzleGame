@@ -19,6 +19,8 @@ public class FlashingLightsPuzzleView : View
 
     public static bool PlayerTurn;
 
+    private bool _isCompleted = false;
+
     public override void Initialize()
     {
         _slots = _grid.GetComponentsInChildren<LightSlot>();
@@ -29,10 +31,28 @@ public class FlashingLightsPuzzleView : View
             slot.OnSelected += Slot_OnSelected;
         }
     }
-
-    private void Start()
+    public override void Show()
     {
+        base.Show();
+
+        if (_isCompleted)
+        {
+            return;
+        }
+
         StartGame();
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
+
+        if (_isCompleted)
+        {
+            return;
+        }
+
+        Reset();
     }
 
     private void Update()
@@ -139,6 +159,24 @@ public class FlashingLightsPuzzleView : View
             slot.Complete();
         }
 
+        _isCompleted = true;
         StaticEventsHandler.CallPuzzleCompletedEvent(this);
+    }
+
+    private void Reset()
+    {
+        StopAllCoroutines();
+
+        PlayerTurn = false;
+
+        _currentStep = 0;
+        _patternsCompleted = 0;
+
+        _flashPattern?.Clear();
+
+        foreach (var slot in _slots)
+        {
+            slot.Reset();
+        }
     }
 }

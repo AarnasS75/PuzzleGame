@@ -44,4 +44,10 @@ public class LightSlot : MonoBehaviour
     {
         _image.color = Color.green;
     }
+
+    public void Reset()
+    {
+        StopAllCoroutines();
+        _image.color = Color.white;
+    }
 }

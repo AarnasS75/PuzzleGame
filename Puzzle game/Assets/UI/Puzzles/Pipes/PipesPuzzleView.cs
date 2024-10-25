@@ -16,14 +16,35 @@ public class PipesPuzzleView : View
 
     private PipeSlot[] _pipeSlots;
 
-    private void Start()
-    {
-        StartCheckingPath();
-    }
+    private bool _isCompleted = false;
 
     public override void Initialize()
     {
         InitializeGrid();
+    }
+
+    public override void Show()
+    {
+        base.Show();
+
+        if (_isCompleted)
+        {
+            return;
+        }
+
+        StartCheckingPath();
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
+
+        if (_isCompleted)
+        {
+            return;
+        }
+
+        Reset();
     }
 
     private void InitializeGrid()
@@ -90,7 +111,6 @@ public class PipesPuzzleView : View
         if (startPipe.Type != _startConnectionRequired)
         {
             startPipe.Image.color = Color.red;
-            Debug.LogError("Start pipe is not correct type");
             yield break;
         }
 
@@ -112,6 +132,7 @@ public class PipesPuzzleView : View
             if (end.Type == _endConnectionRequired)
             {
                 Debug.Log("Puzzle Completed!");
+                _isCompleted = true;
                 StaticEventsHandler.CallPuzzleCompletedEvent(this);
             }
             else
@@ -183,6 +204,15 @@ public class PipesPuzzleView : View
         foreach (var pipeSlot in _pipeSlots)
         {
             pipeSlot.DisableButton();
+        }
+    }
+
+    private void Reset()
+    {
+        StopAllCoroutines();
+        foreach (var pipeSlot in _pipeSlots)
+        {
+            pipeSlot.Reset();
         }
     }
 }

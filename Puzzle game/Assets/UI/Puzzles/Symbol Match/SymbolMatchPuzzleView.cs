@@ -9,12 +9,27 @@ public class SymbolMatchPuzzleView : View
     [SerializeField] private Transform _slotsGrid;  // The grid layout parent
     [SerializeField] private Sprite[] _symbols;     // The symbol images
 
+    private List<SymbolSlot> _slots;
     private SymbolSlot _firstSelected;
     private SymbolSlot _secondSelected;
 
     public static bool IsCheckingForMatch { get; private set; } = false;
 
     private int _matchCount = 0;
+
+    private bool _isCompleted = false;
+
+    public override void Hide()
+    {
+        base.Hide();
+
+        if (_isCompleted)
+        {
+            return;
+        }
+
+        Reset();
+    }
 
     public override void Initialize()
     {
@@ -23,7 +38,9 @@ public class SymbolMatchPuzzleView : View
 
     private void InitializeSlots()
     {
+        _slots = new List<SymbolSlot>();
         var symbolList = new List<Sprite>();
+
         foreach (var symbol in _symbols)
         {
             symbolList.Add(symbol);
@@ -36,6 +53,7 @@ public class SymbolMatchPuzzleView : View
         {
             var newSlot = Instantiate(_symbolSlotPrefab, _slotsGrid);
             newSlot.Initialize(symbolList[i]);
+            _slots.Add(newSlot);
 
             newSlot.OnSymbolSelected += OnSymbolSelected;
         }
@@ -70,6 +88,7 @@ public class SymbolMatchPuzzleView : View
 
             if (_matchCount == _symbols.Length)
             {
+                _isCompleted = true;
                 StaticEventsHandler.CallPuzzleCompletedEvent(this);
             }
         }
@@ -77,5 +96,18 @@ public class SymbolMatchPuzzleView : View
         _firstSelected = null;
         _secondSelected = null;
         IsCheckingForMatch = false;
+    }
+
+    private void Reset()
+    {
+        _matchCount = 0;
+        _firstSelected = null;
+        _secondSelected = null;
+        IsCheckingForMatch = false;
+
+        foreach (var slot in _slots)
+        {
+            slot.Reset();
+        }
     }
 }

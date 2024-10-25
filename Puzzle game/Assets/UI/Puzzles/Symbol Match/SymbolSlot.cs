@@ -79,4 +79,12 @@ public class SymbolSlot : MonoBehaviour
     {
         return _isRevealed;
     }
+
+    public void Reset()
+    {
+        if (_isRevealed)
+        {
+            HideSymbol();
+        }
+    }
 }

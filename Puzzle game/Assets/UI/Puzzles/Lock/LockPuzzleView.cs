@@ -15,10 +15,11 @@ public class LockPuzzleView : View
     [SerializeField] private TextMeshProUGUI _slot2;
     [SerializeField] private TextMeshProUGUI _slot3;
 
-    private const int NumberOfPositions = 10; // Numbers 0-9
-    private const float AnglePerNumber = 36f; // 360 degrees / 10 numbers
-    private const float SnapIncrement = 12f;   // Rotate in steps of 5 degrees
-    private const float Threshold = 5f;       // Allowed deviation for snapping
+    private const int NUMBER_OF_POSITIONS = 10; // Numbers 0-9
+    private const float ANGLE_PER_NUMBER = 36f; // 360 degrees / 10 numbers
+    private const float SNAP_INCREMENT = 12f;   // Rotate in steps of 5 degrees
+    private const float THRESHOLD = 5f;       // Allowed deviation for snapping
+
     private bool _isDragging = false;
     private Vector2 _lastMousePosition;
 
@@ -27,7 +28,19 @@ public class LockPuzzleView : View
 
     private bool _waitingForResult = false;
 
-    private bool _isSolved = false;
+    private bool _isCompleted = false;
+
+    public override void Hide()
+    {
+        base.Hide();
+
+        if (_isCompleted)
+        {
+            return;
+        }
+
+        Reset();
+    }
 
     public override void Initialize()
     {
@@ -41,7 +54,7 @@ public class LockPuzzleView : View
 
     private void Update()
     {
-        if (_isSolved)
+        if (_isCompleted)
         {
             return;
         }
@@ -105,7 +118,7 @@ public class LockPuzzleView : View
         float newRotation = _lockDial.rectTransform.localEulerAngles.z + deltaRotation;
 
         // Snap to the nearest increment
-        newRotation = Mathf.Round(newRotation / SnapIncrement) * SnapIncrement;
+        newRotation = Mathf.Round(newRotation / SNAP_INCREMENT) * SNAP_INCREMENT;
 
         newRotation = Mathf.Repeat(newRotation, 360f);
         _lockDial.rectTransform.localEulerAngles = new Vector3(0, 0, newRotation);
@@ -117,13 +130,13 @@ public class LockPuzzleView : View
 
         // Calculate the current number from the rotation angle
         int currentNumber = -1;
-        for (int i = 0; i < NumberOfPositions; i++)
+        for (int i = 0; i < NUMBER_OF_POSITIONS; i++)
         {
-            float targetAngle = i * AnglePerNumber;
-            if (Mathf.Abs(currentRotation - targetAngle) <= Threshold)
+            float targetAngle = i * ANGLE_PER_NUMBER;
+            if (Mathf.Abs(currentRotation - targetAngle) <= THRESHOLD)
             {
                 currentNumber = i + 1;
-                if (currentNumber == NumberOfPositions)
+                if (currentNumber == NUMBER_OF_POSITIONS)
                 {
                     currentNumber = 0;
                 }
@@ -169,7 +182,7 @@ public class LockPuzzleView : View
 
         if (CheckIfSequenceIsCorrect())
         {
-            _isSolved = true;
+            _isCompleted = true;
             StaticEventsHandler.CallPuzzleCompletedEvent(this);
         }
         else
@@ -206,5 +219,13 @@ public class LockPuzzleView : View
         {
             _playerAttemptSequence[i] = -1; // Clear previous attempts
         }
+    }
+
+    private void Reset()
+    {
+        _waitingForResult = false;
+        _lockDial.rectTransform.localEulerAngles = Vector3.zero;
+        ResetPlayerAttempt();
+        StopAllCoroutines();
     }
 }

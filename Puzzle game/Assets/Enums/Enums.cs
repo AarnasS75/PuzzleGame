@@ -1,5 +1,10 @@
+public enum SongTitle
+{
+    Ost,
+    MainMenu
+}
 
-public enum SoundTitle
+public enum SfxTitle
 {
     MachineryHumming,
     AirVents,

@@ -418,12 +418,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce75d79cc4e3c0c49a5c618287430da8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sounds:
+  _sfxs:
   - Clip: {fileID: 8300000, guid: 515a6941bf77bee4e916e824084efdd7, type: 3}
-    Title: 2
-    Volume: 0.514
+    Volume: 0.425
     IsLooping: 0
     Source: {fileID: 0}
+    Title: 2
+  _songs: []
 --- !u!1 &1495635346
 GameObject:
   m_ObjectHideFlags: 0

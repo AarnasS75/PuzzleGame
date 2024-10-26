@@ -65,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
             // Only play the footstep sound when the timer reaches 0
             if (footstepTimer <= 0f)
             {
-                AudioManager.Instance.PlaySFX(SoundTitle.Footsteps); // Play footstep sound
+                AudioManager.Instance.Play(SfxTitle.Footsteps); // Play footstep sound
                 footstepTimer = footstepInterval; // Reset the timer for the next footstep
             }
         }

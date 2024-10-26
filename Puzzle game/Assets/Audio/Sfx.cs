@@ -2,10 +2,20 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class Sound
+public class Sfx : Sound
+{
+    public SfxTitle Title;
+}
+
+[Serializable]
+public class Song : Sound
+{
+    public SongTitle Title;
+}
+
+public abstract class Sound
 {
     public AudioClip Clip;
-    public SoundTitle Title;
 
     [Range(0f, 1f)]
     public float Volume;

@@ -1,39 +1,30 @@
 using System;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : Singleton<AudioManager>
 {
     [Space(2)]
-    [Header("SOUNDS")]
-    public Sound[] sounds;
+    [Header("SFX")]
+    public Sfx[] _sfxs;
 
-    public static AudioManager Instance;
+    [Space(2)]
+    [Header("SONGS")]
+    public Song[] _songs;
 
-    private AudioSource music1;
-    private AudioSource music2;
-    private AudioSource sfxSource;
-    private bool firstSourceIsPlaying;
+    private AudioSource _musicSource;
+    private AudioSource _sfxSource;
 
-    void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        base.Awake();
 
-        DontDestroyOnLoad(gameObject);
-
-        music1 = gameObject.AddComponent<AudioSource>();
-        music2 = gameObject.AddComponent<AudioSource>();
-        sfxSource = gameObject.AddComponent<AudioSource>();
+        _musicSource = gameObject.AddComponent<AudioSource>();
+        _sfxSource = gameObject.AddComponent<AudioSource>();
     }
 
-    public void PlayMusic(SoundTitle musicTitle)
+    public void Play(SongTitle musicTitle)
     {
-        var musicToPlay = Array.Find(sounds, sound => sound.Title == musicTitle);
+        var musicToPlay = Array.Find(_songs, sound => sound.Title == musicTitle);
 
         if (musicToPlay == null)
         {
@@ -41,29 +32,32 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        AudioSource activeSound = (firstSourceIsPlaying) ? music1 : music2;
-
-        activeSound.clip = musicToPlay.Clip;
-        activeSound.volume = musicToPlay.Volume;
-        activeSound.loop = musicToPlay.IsLooping;
-        activeSound.Play();
+        _musicSource.clip = musicToPlay.Clip;
+        _musicSource.volume = musicToPlay.Volume;
+        _musicSource.loop = musicToPlay.IsLooping;
+        _musicSource.Play();
     }
 
-    public void PlaySFX(SoundTitle sfxTitle)
+    public void Play(SfxTitle sfxTitle)
     {
-        Sound sfx = Array.Find(sounds, sound => sound.Title == sfxTitle);
+        var sfx = Array.Find(_sfxs, fx => fx.Title == sfxTitle);
 
-        sfxSource.PlayOneShot(sfx.Clip, sfx.Volume);
+        if (sfx == null)
+        {
+            print($"Sfx titled [{sfxTitle}] was not found");
+            return;
+        }
+
+        _sfxSource.PlayOneShot(sfx.Clip, sfx.Volume);
     }
 
     public void SetMusicVolume(float volume)
     {
-        music1.volume = volume;
-        music2.volume = volume;
+        _musicSource.volume = volume;
     }
 
     public void SetSFXVolume(float volume)
     {
-        sfxSource.volume = volume;
+        _sfxSource.volume = volume;
     }
 }

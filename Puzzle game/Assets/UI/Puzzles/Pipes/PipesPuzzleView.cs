@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PipesPuzzleView : View
 {
@@ -13,6 +14,11 @@ public class PipesPuzzleView : View
     [Header("Sprites")]
     [SerializeField] private Sprite _straightPipeSprite;
     [SerializeField] private Sprite _turnPipeSprite;
+
+    [Header("Liquid")]
+    [SerializeField] private Image _topLiquid;
+    [SerializeField] private Image _botLiquid;
+    [SerializeField] private float _fillDuration = 3f;
 
     private PipeSlot[] _pipeSlots;
 
@@ -29,10 +35,11 @@ public class PipesPuzzleView : View
 
         if (_isCompleted)
         {
+            _botLiquid.fillAmount = 1;
             return;
         }
 
-        StartCheckingPath();
+        StartPuzzle();
     }
 
     public override void Hide()
@@ -73,6 +80,30 @@ public class PipesPuzzleView : View
         }
     }
 
+    private void StartPuzzle()
+    {
+        _topLiquid.fillAmount = 0;
+        _botLiquid.fillAmount = 0;
+        StartCoroutine(FillTopLiquid());
+    }
+
+    private IEnumerator FillTopLiquid()
+    {
+        yield return new WaitForSeconds(5);
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < _fillDuration)
+        {
+            _topLiquid.fillAmount = Mathf.Lerp(0, 1, elapsedTime / _fillDuration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        _topLiquid.fillAmount = 1;
+        StartCheckingPath();
+    }
+
     private void StartCheckingPath()
     {
         StartCoroutine(CheckPathStepByStepWithDFS());
@@ -94,20 +125,11 @@ public class PipesPuzzleView : View
 
     private IEnumerator CheckPathStepByStepWithDFS()
     {
-        yield return new WaitForSeconds(10);
-
         DisableSlotsButtons();
 
         var startPipe = _pipeSlots.FirstOrDefault(slot => slot.IsStart);
         var endPipe = _pipeSlots.FirstOrDefault(slot => slot.IsEnd);
 
-        if (startPipe == null || endPipe == null)
-        {
-            Debug.LogError("Start or End pipe is not assigned.");
-            yield break;
-        }
-
-        // Check if the start and end slots are of the correct types
         if (startPipe.Type != _startConnectionRequired)
         {
             startPipe.Image.color = Color.red;
@@ -117,7 +139,6 @@ public class PipesPuzzleView : View
         startPipe.Image.color = Color.green;
         var visited = new HashSet<PipeSlot>();
 
-        // Start the DFS with the first slot
         yield return StartCoroutine(DFS(startPipe, endPipe, visited));
     }
 
@@ -125,7 +146,7 @@ public class PipesPuzzleView : View
     {
         visited.Add(current);
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.4f);
 
         if (current == end)
         {
@@ -133,7 +154,7 @@ public class PipesPuzzleView : View
             {
                 Debug.Log("Puzzle Completed!");
                 _isCompleted = true;
-                StaticEventsHandler.CallPuzzleCompletedEvent(this);
+                StartCoroutine(FillBotLiquid());
             }
             else
             {
@@ -158,7 +179,21 @@ public class PipesPuzzleView : View
         }
     }
 
-    // Get neighbors by checking relative position using RectTransform
+    private IEnumerator FillBotLiquid()
+    {
+        float elapsedTime = 0f;
+        _botLiquid.fillAmount = 0;
+
+        while (elapsedTime < 3)
+        {
+            _botLiquid.fillAmount = Mathf.Lerp(0, 1, elapsedTime / 3);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        _botLiquid.fillAmount = 1;
+    }
+
     private List<PipeSlot> GetNeighbors(PipeSlot pipeSlot)
     {
         List<PipeSlot> neighbors = new List<PipeSlot>();
@@ -209,7 +244,7 @@ public class PipesPuzzleView : View
 
     private void Reset()
     {
-        StopAllCoroutines();
+        StopCoroutine(CheckPathStepByStepWithDFS());
         foreach (var pipeSlot in _pipeSlots)
         {
             pipeSlot.Reset();

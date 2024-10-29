@@ -53,6 +53,11 @@ public class GameplayViewController : ViewController
 
     private void InputManager_OnPuzzleObjectSelected(PuzzleObject obj)
     {
+        if (_currentView is PuzzlesView)
+        {
+            return;
+        }
+
         Show<PuzzlesView>();
         Get<PuzzlesView>().ShowPuzzle(obj);
     }

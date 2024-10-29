@@ -14,6 +14,7 @@ public class InputManager : MonoBehaviour
 
     public static event Action<PuzzleObject> OnPuzzleObjectSelected;
     public static event Action<EndPuzzle, int> OnEndPuzzleObjectSelected;
+    public static event Action<float> OnScrollPerformed;
 
     private void Awake()
     {
@@ -28,6 +29,7 @@ public class InputManager : MonoBehaviour
         _input.Gameplay.Look.performed += Look_performed;
         _input.Gameplay.Interact.started += Interact_performed;
         _input.Gameplay.Escape.started += Escape_started;
+        _input.Gameplay.ScrollWheel.performed += ScrollWheel_performed;
 
         StaticEventsHandler.OnPuzzleCompleted += StaticEventsHandler_OnPuzzleCompleted;
     }
@@ -40,8 +42,14 @@ public class InputManager : MonoBehaviour
         _input.Gameplay.Look.performed -= Look_performed;
         _input.Gameplay.Interact.started -= Interact_performed;
         _input.Gameplay.Escape.started -= Escape_started;
+        _input.Gameplay.ScrollWheel.performed -= ScrollWheel_performed;
 
         StaticEventsHandler.OnPuzzleCompleted -= StaticEventsHandler_OnPuzzleCompleted;
+    }
+
+    private void ScrollWheel_performed(InputAction.CallbackContext ctx)
+    {
+        OnScrollPerformed?.Invoke(ctx.ReadValue<Vector2>().y);
     }
 
     public static void CallEscapeButtonPressed()

@@ -30,6 +30,18 @@ public class LockPuzzleView : View
 
     private bool _isCompleted = false;
 
+    private void OnEnable()
+    {
+        // Subscribe to scroll input
+        InputManager.OnScrollPerformed += HandleScrollInput;
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from scroll input
+        InputManager.OnScrollPerformed -= HandleScrollInput;
+    }
+
     public override void Hide()
     {
         base.Hide();
@@ -61,6 +73,15 @@ public class LockPuzzleView : View
 
         HandleMouseInput();
         UpdateDragState();
+    }
+
+    private void HandleScrollInput(float scrollValue)
+    {
+        if (_isCompleted || _waitingForResult) return;
+
+        // Rotate the dial by a fixed angle increment based on scroll direction
+        float rotationAmount = scrollValue > 0 ? ANGLE_PER_NUMBER : -ANGLE_PER_NUMBER;
+        RotateDial(rotationAmount);
     }
 
     private void HandleMouseInput()

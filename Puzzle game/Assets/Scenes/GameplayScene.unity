@@ -15974,6 +15974,11 @@ MonoBehaviour:
     Volume: 0.425
     IsLooping: 0
     Source: {fileID: 0}
+    Title: 0
+  - Clip: {fileID: 8300000, guid: 8e434fb151845d84db55e3a2a89fb3de, type: 3}
+    Volume: 0.25
+    IsLooping: 0
+    Source: {fileID: 0}
     Title: 2
   _songs: []
 --- !u!4 &1831400658

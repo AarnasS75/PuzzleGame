@@ -6,10 +6,11 @@ public enum SongTitle
 
 public enum SfxTitle
 {
-    MachineryHumming,
-    AirVents,
     Footsteps,
-    ElectricalBuzz
+    ElectricalBuzz,
+    SafeDial,
+    SafeOpen,
+    CorrectSafeNumber
 }
 
 public enum Puzzle

@@ -18,10 +18,7 @@ public class LockPuzzleView : View
     private const int NUMBER_OF_POSITIONS = 10; // Numbers 0-9
     private const float ANGLE_PER_NUMBER = 36f; // 360 degrees / 10 numbers
     private const float SNAP_INCREMENT = 12f;   // Rotate in steps of 5 degrees
-    private const float THRESHOLD = 5f;       // Allowed deviation for snapping
-
-    private bool _isDragging = false;
-    private Vector2 _lastMousePosition;
+    private const float THRESHOLD = 0.5f;       // Allowed deviation for snapping
 
     private int[] _playerAttemptSequence;
     private int _currentSequenceIndex = 0;
@@ -71,7 +68,6 @@ public class LockPuzzleView : View
             return;
         }
 
-        HandleMouseInput();
         UpdateDragState();
     }
 
@@ -84,36 +80,6 @@ public class LockPuzzleView : View
         RotateDial(rotationAmount);
     }
 
-    private void HandleMouseInput()
-    {
-        if (_isDragging && !_waitingForResult)
-        {
-            Vector2 currentMousePosition = Mouse.current.position.ReadValue();
-            float angleDelta = GetAngleDelta(currentMousePosition);
-
-            RotateDial(angleDelta);
-
-            _lastMousePosition = currentMousePosition;
-        }
-    }
-
-    private float GetAngleDelta(Vector2 currentMousePosition)
-    {
-        Vector2 dialCenter = _lockDial.rectTransform.position; // Get the center of the dial
-
-        Vector2 lastDir = _lastMousePosition - dialCenter;
-        Vector2 currentDir = currentMousePosition - dialCenter;
-
-        // Get the angle difference between the last and current mouse position
-        float lastAngle = Mathf.Atan2(lastDir.y, lastDir.x) * Mathf.Rad2Deg;
-        float currentAngle = Mathf.Atan2(currentDir.y, currentDir.x) * Mathf.Rad2Deg;
-
-        // Calculate the angular difference
-        float angleDelta = Mathf.DeltaAngle(lastAngle, currentAngle);
-
-        return angleDelta;
-    }
-
     private void UpdateDragState()
     {
         if (_waitingForResult)
@@ -121,35 +87,30 @@ public class LockPuzzleView : View
             return;
         }
 
-        if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            _isDragging = true;
-            _lastMousePosition = Mouse.current.position.ReadValue();
-        }
-
         if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            _isDragging = false;
             CheckForExactPosition();
         }
     }
 
     private void RotateDial(float deltaRotation)
     {
-        float newRotation = _lockDial.rectTransform.localEulerAngles.z + deltaRotation;
-
-        // Snap to the nearest increment
+        float previousRotation = _lockDial.rectTransform.localEulerAngles.z;
+        float newRotation = previousRotation + deltaRotation;
         newRotation = Mathf.Round(newRotation / SNAP_INCREMENT) * SNAP_INCREMENT;
-
         newRotation = Mathf.Repeat(newRotation, 360f);
         _lockDial.rectTransform.localEulerAngles = new Vector3(0, 0, newRotation);
+
+        if (Mathf.Abs(newRotation - previousRotation) >= SNAP_INCREMENT)
+        {
+            AudioManager.Instance.Play(SfxTitle.SafeDial);
+        }
     }
 
     private void CheckForExactPosition()
     {
         float currentRotation = _lockDial.rectTransform.localEulerAngles.z;
 
-        // Calculate the current number from the rotation angle
         int currentNumber = -1;
         for (int i = 0; i < NUMBER_OF_POSITIONS; i++)
         {

@@ -15976,10 +15976,30 @@ MonoBehaviour:
     Source: {fileID: 0}
     Title: 0
   - Clip: {fileID: 8300000, guid: 8e434fb151845d84db55e3a2a89fb3de, type: 3}
-    Volume: 0.25
+    Volume: 0.548
+    IsLooping: 0
+    Source: {fileID: 0}
+    Title: 1
+  - Clip: {fileID: 8300000, guid: e2b598a477ff12844b5b550797687c23, type: 3}
+    Volume: 0.881
+    IsLooping: 0
+    Source: {fileID: 0}
+    Title: 3
+  - Clip: {fileID: 8300000, guid: a09a08d315600d64bbe271fb0f4a9b77, type: 3}
+    Volume: 1
     IsLooping: 0
     Source: {fileID: 0}
     Title: 2
+  - Clip: {fileID: 8300000, guid: 3e8d6efef84397041ad26664cdc60fe1, type: 3}
+    Volume: 0.69
+    IsLooping: 1
+    Source: {fileID: 0}
+    Title: 5
+  - Clip: {fileID: 8300000, guid: ccadaf9b23329d24f8ad7c18a2a1988e, type: 3}
+    Volume: 1
+    IsLooping: 1
+    Source: {fileID: 0}
+    Title: 4
   _songs: []
 --- !u!4 &1831400658
 Transform:

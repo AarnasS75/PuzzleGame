@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : Singleton<AudioManager>
 {
@@ -20,6 +21,15 @@ public class AudioManager : Singleton<AudioManager>
 
         _musicSource = gameObject.AddComponent<AudioSource>();
         _sfxSource = gameObject.AddComponent<AudioSource>();
+    }
+
+    private void Start()
+    {
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            Play(SfxTitle.Humming);
+            Play(SfxTitle.LightsBuzz);
+        }
     }
 
     public void Play(SongTitle musicTitle)
@@ -48,6 +58,9 @@ public class AudioManager : Singleton<AudioManager>
             return;
         }
 
+        _sfxSource.clip = sfx.Clip;
+        _sfxSource.volume = sfx.Volume;
+        _sfxSource.loop = sfx.IsLooping;
         _sfxSource.PlayOneShot(sfx.Clip, sfx.Volume);
     }
 

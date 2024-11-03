@@ -82,7 +82,7 @@ public class LockPuzzleView : View
 
     private void UpdateDragState()
     {
-        if (_waitingForResult)
+        if (_waitingForResult || _currentSequenceIndex >= _numberSequence.Length)
         {
             return;
         }
@@ -150,7 +150,8 @@ public class LockPuzzleView : View
             _slot3.text = currentNumber.ToString();
         }
 
-        // If the player has entered all the numbers in the sequence
+        AudioManager.Instance.Play(SfxTitle.CorrectSafeNumber);
+
         if (_currentSequenceIndex >= _numberSequence.Length)
         {
             StartCoroutine(nameof(WaitForResult));
@@ -165,6 +166,7 @@ public class LockPuzzleView : View
         if (CheckIfSequenceIsCorrect())
         {
             _isCompleted = true;
+            AudioManager.Instance.Play(SfxTitle.SafeOpen);
             StaticEventsHandler.CallPuzzleCompletedEvent(this);
         }
         else

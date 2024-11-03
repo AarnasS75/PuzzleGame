@@ -7,10 +7,11 @@ public enum SongTitle
 public enum SfxTitle
 {
     Footsteps,
-    ElectricalBuzz,
     SafeDial,
     SafeOpen,
-    CorrectSafeNumber
+    CorrectSafeNumber,
+    Humming,
+    LightsBuzz,
 }
 
 public enum Puzzle
